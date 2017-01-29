@@ -221,7 +221,7 @@ class catalog:
             download = call.read()
 
         else:
-            download = ''
+            download = b''
             last_status = ''
             file_size_bytes = 0
             block_size = 81920 # download block size in bytes
