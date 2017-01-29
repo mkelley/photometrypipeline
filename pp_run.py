@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ PP_RUN - wrapper for automated data analysis
     v1.0: 2016-02-10, michael.mommert@nau.edu
@@ -84,7 +84,7 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
             hdulist = fits.open(filename, ignore_missing_end=True)
         except IOError:
             logging.error('cannot open file %s' % filename)
-            print 'ERROR: cannot open file %s' % filename
+            print('ERROR: cannot open file %s' % filename)
             filenames.pop(idx)
             continue
 
@@ -104,8 +104,8 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
         
     # check if there is only one unique instrument
     if len(set(instruments)) > 1:
-        print 'ERROR: multiple instruments used in dataset: %s' % \
-            str(set(instruemnts))
+        print('ERROR: multiple instruments used in dataset: %s' % \
+            str(set(instruemnts)))
         logging.error('multiple instruments used in dataset: %s' % 
                       str(set(instruments)))
         for i in range(len(filenames)):
@@ -127,7 +127,7 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
             hdulist = fits.open(filename, ignore_missing_end=True)
         except IOError:
             logging.error('cannot open file %s' % filename)
-            print 'ERROR: cannot open file %s' % filename
+            print('ERROR: cannot open file %s' % filename)
             filenames.pop(idx)
             continue
 
@@ -139,7 +139,7 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
                        'setup/telescopes.py accordingly')
 
     if len(set(filters)) > 1:
-        print 'ERROR: multiple filters used in dataset: %s' % str(set(filters))
+        print('ERROR: multiple filters used in dataset: %s' % str(set(filters)))
         logging.error('multiple filters used in dataset: %s' % 
                       str(set(filters)))
         for i in range(len(filenames)):
@@ -150,9 +150,9 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
         try:
             filtername = obsparam['filter_translations'][filters[0]]
         except KeyError:
-            print ('Cannot translate filter name (%s); please adjust ' + \
+            print(('Cannot translate filter name (%s); please adjust ' + \
                    'keyword "filter_translations" for %s in ' + \
-                   'setup/telescopes.py') % (filters[0], telescope)
+                   'setup/telescopes.py') % (filters[0], telescope))
             logging.error(('Cannot translate filter name (%s); please adjust '+\
                    'keyword "filter_translations" for %s in ' + \
                    'setup/telescopes.py') % (filters[0], telescope))
@@ -161,8 +161,8 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
         filtername = man_filtername
     logging.info('%d %s frames identified' % (len(filenames), filtername))
     
-    print 'run photometry pipeline on %d %s %s frames' % \
-          (len(filenames), telescope, filtername)
+    print('run photometry pipeline on %d %s %s frames' % \
+          (len(filenames), telescope, filtername))
 
     change_header = {}
     if man_targetname is not None:
@@ -180,7 +180,7 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
     sex_snr, source_minarea = 3, obsparam['source_minarea']
     aprad = obsparam['aprad_default']
 
-    print '\n----- run image registration\n'
+    print('\n----- run image registration\n')
     registration = pp_register.register(filenames, telescope, sex_snr,
                                         source_minarea, aprad,
                                         None, obsparam,
@@ -213,13 +213,13 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
     if filtername == None:
         logging.info('Nothing else to do for this filter (%s)' %
                      filtername)
-        print 'Nothing else to do for this filter (%s)' % filtername
+        print('Nothing else to do for this filter (%s)' % filtername)
         return None
 
     # stop here if registration failed for all images
     if len(filenames) == 0:
         logging.info('Nothing else to do for this image set')
-        print 'Nothing else to do for this image set'
+        print('Nothing else to do for this image set')
         diag.abort('pp_registration')
         return None
 
@@ -234,7 +234,7 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
     else:
         aprad = fixed_aprad # skip curve_of_growth analysis
 
-    print '\n----- derive optimium photometry aperture\n'
+    print('\n----- derive optimium photometry aperture\n')
     phot = pp_photometry.photometry(filenames, sex_snr, source_minarea, aprad,
                                     man_targetname, background_only, 
                                     target_only,
@@ -265,13 +265,13 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
     ### run photometric calibration
     minstars = _pp_conf.minstars
     manualcatalog = None
-    print '\n----- run photometric calibration\n'
+    print('\n----- run photometric calibration\n')
     calibration = pp_calibrate.calibrate(filenames, minstars, filtername,
                                          manualcatalog, obsparam, display=True,
                                          diagnostics=True)
 
     if calibration == None:
-        print 'Nothing to do!'
+        print('Nothing to do!')
         logging.error('Nothing to do! Error in pp_calibrate')
         diag.abort('pp_calibrate')
         sys.exit(1)
@@ -292,13 +292,13 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
         
 
     ### distill photometry results
-    print '\n----- distill photometry results\n'    
+    print('\n----- distill photometry results\n')    
     distillate = pp_distill.distill(calibration['catalogs'],
                                     man_targetname, [0,0],
                                     None, None,
                                     display=True, diagnostics=True)
 
-    targets = numpy.array(distillate['targetnames'].keys())
+    targets = numpy.array(list(distillate['targetnames'].keys()))
     try:
         target = targets[targets != 'control_star'][0]
         mags = [frame[7] for frame in distillate[target]]
@@ -313,7 +313,7 @@ def run_the_pipeline(filenames, man_targetname, man_filtername,
     if _pp_conf.use_diagnostics_summary:
         diag.insert_into_summary(summary_message)
 
-    print '\nDone!\n'
+    print('\nDone!\n')
     logging.info('----- successfully done with this process ----')
 
     gc.collect() # collect garbage; just in case, you never know...
@@ -367,13 +367,13 @@ if __name__ == '__main__':
 
             # call run_the_pipeline for each directory separately
             if len(filenames) > 0:
-                print '\n RUN PIPELINE IN %s' % root
+                print('\n RUN PIPELINE IN %s' % root)
                 os.chdir(root)
                 run_the_pipeline(filenames, man_targetname, man_filtername,
                                  fixed_aprad)
                 os.chdir(_masterroot_directory)
             else:
-                print '\n NOTHING TO DO IN %s' % root
+                print('\n NOTHING TO DO IN %s' % root)
 
 
     else:

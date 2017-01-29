@@ -151,7 +151,7 @@ def create_index(filenames, directory, obsparam, display=False):
     """
 
     if display:
-        print 'create frame index table and frame images'
+        print('create frame index table and frame images')
     logging.info('create frame index table and frame images')
 
     # obtain filtername from first image file
@@ -327,7 +327,7 @@ def add_registration(data, extraction_data):
 
         # turn relevant header keys into floats
         # astropy.io.fits bug
-        for key, val in header.items():
+        for key, val in list(header.items()):
             if 'CD1_' in key or 'CD2_' in key or \
                'CRVAL' in key or 'CRPIX' in key or \
                'EQUINOX' in key:
@@ -347,13 +347,12 @@ def add_registration(data, extraction_data):
         # plot reference sources
         if refcat.shape[0] > 0:
             w = wcs.WCS(header)
-            world_coo = numpy.array(zip(refcat['X_WORLD'], refcat['Y_WORLD']))
+            world_coo = numpy.array(list(zip(refcat['X_WORLD'], refcat['Y_WORLD'])))
             img_coo = w.wcs_world2pix(world_coo, True )
-            img_coo = filter(lambda c: (c[0] > 0 and c[1] > 0 and 
+            img_coo = [c for c in img_coo if (c[0] > 0 and c[1] > 0 and 
                                         c[0] < header[obsparam['extent'][0]] 
                                         and 
-                                        c[1] < header[obsparam['extent'][1]]),
-                             img_coo)
+                                        c[1] < header[obsparam['extent'][1]])]
             plt.scatter([c[0] for c in img_coo], [c[1] for c in img_coo], 
                         s=20, marker='o', edgecolors='red', facecolor='none')
 
@@ -578,7 +577,7 @@ def add_calibration(data):
     html += "<TH>Filename</TH><TH>Zeropoint (mag)</TH><TH>ZP_sigma (mag)</TH>" \
             + "<TH>N_stars</TH><TH>N_matched</TH>\n</TR>\n"
     for dat in data['zeropoints']:
-        if 'plotfilename' in dat.keys():
+        if 'plotfilename' in list(dat.keys()):
             html += ("<TR><TD><A HREF=\"#%s\">%s</A></TD>" \
                      + "<TD>%7.4f</TD><TD>%7.4f</TD><TD>%d</TD>" \
                      + "<TD>%d</TD>\n</TR>" ) % \
@@ -645,7 +644,7 @@ def add_calibration(data):
 
         # turn relevant header keys into floats
         # astropy.io.fits bug
-        for key, val in header.items():
+        for key, val in list(header.items()):
             if 'CD1' in key or 'CD2' in key or \
                'CRVAL' in key or 'CRPIX' in key or \
                'EQUINOX' in key:
@@ -744,7 +743,7 @@ def add_results(data):
 
             # turn relevant header keywords into floats
             # should be fixed in astropy.wcs
-            for key, val in hdulist[0].header.items():
+            for key, val in list(hdulist[0].header.items()):
                 if 'CD1' in key or 'CD2' in key or \
                    'CRVAL' in key or 'CRPIX' in key or \
                    'EQUINOX' in key:

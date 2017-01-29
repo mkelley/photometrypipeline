@@ -1366,6 +1366,6 @@ telescope_parameters = {'VATT4K' :       vatt4k_param,
 # http://mommermi.github.io/pp/install.html
 
 try:
-    execfile(rootpath+'/setup/mytelescopes.py')
+    exec(compile(open(rootpath+'/setup/mytelescopes.py').read(), rootpath+'/setup/mytelescopes.py', 'exec'))
 except IOError:
     pass

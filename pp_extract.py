@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ PP_EXTRACT - identify field sources using Source Extractor with
     multi-threading capabilities 
@@ -29,7 +29,7 @@ import subprocess
 import logging
 import argparse, shlex
 import time, datetime
-import Queue, threading
+import queue, threading
 import logging
 from astropy.io import fits
 
@@ -50,7 +50,7 @@ version = '1.0'
 
 # threading definitions
 nThreads = 10
-extractQueue = Queue.Queue(2000)
+extractQueue = queue.Queue(2000)
 threadLock = threading.Lock()   
 
 
@@ -125,8 +125,8 @@ class extractor(threading.Thread):
                                        stdout=subprocess.PIPE, 
                                        stderr=subprocess.PIPE, 
                                        universal_newlines=True)
-            except Exception, e:
-                print 'Source Extractor call:', (e)
+            except Exception as e:
+                print('Source Extractor call:', (e))
                 logging.error('Source Extractor call:', (e))
                 extractQueue.task_done() # inform queue, this task is done
                 return None
@@ -138,9 +138,9 @@ class extractor(threading.Thread):
                 sex_output = sex.communicate()[1]
                 if 'not found, using internal defaults' in sex_output:
                     if not self.param['quiet']:
-                        print ('ERROR: no Source Extractor setup file ' +
+                        print(('ERROR: no Source Extractor setup file ' +
                                'available (should be in %s)') % \
-                            self.param['obsparam']['sex-config-file'] 
+                            self.param['obsparam']['sex-config-file']) 
                         logging.error(('ERROR: no Source Extractor setup file'+
                                        ' available (should be in %s)') % \
                         self.param['obsparam']['sex-config-file'])
@@ -159,8 +159,8 @@ class extractor(threading.Thread):
 
             if not os.path.exists(ldac_filename):
                 threadLock.acquire()
-                print 'No Source Extractor output for frame', filename, \
-                    '\nplease check output:\n', sex_output
+                print('No Source Extractor output for frame', filename, \
+                    '\nplease check output:\n', sex_output)
                 logging.error('No Source Extractor output, ' + 
                               'please check output:' + sex_output)
                 threadLock.release()
@@ -171,7 +171,7 @@ class extractor(threading.Thread):
             # make sure ldac file contains data
             if ldac_data.read_ldac(ldac_filename, maxflag=None) is None:
                 extractQueue.task_done()
-                print 'LDAC file empty', filename, 
+                print('LDAC file empty', filename, end=' ') 
                 logging.error('LDAC file empty: ' + sex_output)
                 return None
 
@@ -216,8 +216,8 @@ class extractor(threading.Thread):
             logging.info("%d sources extracted from frame %s" % \
                          (len(ldac_data.data), filename))
             if not self.param['quiet']:
-                print "%d sources extracted from frame %s" % \
-                    (len(ldac_data.data), filename)
+                print("%d sources extracted from frame %s" % \
+                    (len(ldac_data.data), filename))
             threadLock.release()
 
             del ldac_data
@@ -247,14 +247,14 @@ def extract_multiframe(filenames, parameters):
         except KeyError:
             logging.critical('ERROR: TEL_KEYW not in image header (%s)' %
                              filenames[0])
-            print 'ERROR: TEL_KEYW not in image header;' + \
-                  'has this image run through register?'
+            print('ERROR: TEL_KEYW not in image header;' + \
+                  'has this image run through register?')
             return {}
     try:
         parameters['obsparam'] = _pp_conf.telescope_parameters[\
                                                 parameters['telescope']]
     except KeyError:
-        print "ERROR: telescope '%s' is unknown." % telescope
+        print("ERROR: telescope '%s' is unknown." % telescope)
         logging.critical('ERROR: telescope \'%s\' is unknown.' % telescope)
         return {}
 
@@ -335,7 +335,7 @@ def extract_multiframe(filenames, parameters):
     extractQueue.join()
 
     # check if extraction was successful
-    if any(['catalog_data' not in output[i].keys()
+    if any(['catalog_data' not in list(output[i].keys())
             for i in range(len(output))]):
         return None
     

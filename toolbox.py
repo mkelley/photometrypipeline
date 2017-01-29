@@ -23,7 +23,7 @@ Toolbox for the Photometry Pipeline
 
 import math
 import numpy
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 ##### TIME AND DATE
 
@@ -37,13 +37,13 @@ def jd_to_gregorian(jd, is_mjd=False):
   MJD0 = 2400000.5 # 1858 November 17, 00:00:00 hours 
 
   modf = math.modf
-  a = long(mjd+MJD0+0.5)
-  b = long((a-1867216.25)/36524.25)
-  c = a+ b - long(modf(b/4)[1]) + 1525 
+  a = int(mjd+MJD0+0.5)
+  b = int((a-1867216.25)/36524.25)
+  c = a+ b - int(modf(b/4)[1]) + 1525 
 
-  d = long((c-122.1)/365.25)
-  e = 365*d + long(modf(d/4)[1])
-  f = long((c-e)/30.6001)
+  d = int((c-122.1)/365.25)
+  e = 365*d + int(modf(d/4)[1])
+  f = int((c-e)/30.6001)
 
   day = int(c - e - int(30.6001*f))
   month = int(f - 1 - 12*int(modf(f/14)[1]))
@@ -129,9 +129,9 @@ def read_scamp_output():
     abort = False
     for i in range(len(data)):
       if len(headers) != len(data[i]):
-        print 'ERROR: data and header lists from SCAMP output file have ' \
+        print('ERROR: data and header lists from SCAMP output file have ' \
           + 'different lengths for image %s; do the FITS files have the ' \
-          + 'OBJECT keyword populated?' % data[i][headers['Catalog_Name']]
+          + 'OBJECT keyword populated?' % data[i][headers['Catalog_Name']])
         abort = True
     if abort:
       return ()

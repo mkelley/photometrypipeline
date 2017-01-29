@@ -50,12 +50,12 @@ warnings.filterwarnings('ignore', category=fits.card.VerifyWarning)
 ### read photometry pipeline root path from environment variable
 rootpath = os.environ.get('PHOTPIPEDIR')
 if rootpath == None:
-    print 'ERROR: PHOTPIPEDIR variable has not been set'
+    print('ERROR: PHOTPIPEDIR variable has not been set')
     sys.exit(0)
 
 
 # read telescope setup parameters (obsparam)
-execfile(rootpath+'/setup/telescopes.py')
+exec(compile(open(rootpath+'/setup/telescopes.py').read(), rootpath+'/setup/telescopes.py', 'exec'))
 
 
 #### set diagnostics root directory and logging file

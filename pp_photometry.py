@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ PP_PHOTOMETRY - run curve-of-growth analysis on image files, 
                     identify optimum aperture radius, and redo photometry
@@ -58,18 +58,18 @@ def curve_of_growth_analysis(filenames, parameters,
     
     logging.info('starting photometry with parameters: %s' % \
                  (', '.join([('%s: %s' % (var, str(val))) for 
-                             var, val in locals().items()])))   
+                             var, val in locals().items()])))
 
     ### re-extract sources for curve-of-growth analysis
 
     aprads = parameters['aprad']
     if not isinstance(aprads, list) and not isinstance(aprads, numpy.ndarray):
-        print 'need a list of aprads...'
+        print('need a list of aprads...')
         os.abort()
     
     logging.info('run pp_extract using %d apertures' % len(aprads))
-    print '* extract sources from %d images using %d apertures' % \
-        (len(filenames), len(aprads))
+    print('* extract sources from %d images using %d apertures' % \
+        (len(filenames), len(aprads)))
     
     extractparameters = {'sex_snr':parameters['sex_snr'], 
                          'source_minarea':parameters['source_minarea'],
@@ -79,7 +79,7 @@ def curve_of_growth_analysis(filenames, parameters,
                          'quiet':False}
 
     extraction = pp_extract.extract_multiframe(filenames, extractparameters)
-    extraction = filter(lambda e: len(e)>0, extraction)
+    extraction = [e for e in extraction if len(e) > 0]
 
 
     ##### curve-of-growth analysis
@@ -93,7 +93,7 @@ def curve_of_growth_analysis(filenames, parameters,
     for filename in filenames:
 
         if display:
-            print 'processing curve-of-growth for frame %s' % filename
+            print('processing curve-of-growth for frame %s' % filename)
 
         if not parameters['background_only']:
 
@@ -128,7 +128,7 @@ def curve_of_growth_analysis(filenames, parameters,
             try:
                 n = eph.get_ephemerides(obsparam['observatory_code'])
             except ValueError:
-                print 'Target (%s) not an asteroid' % targetname
+                print('Target (%s) not an asteroid' % targetname)
                 logging.warning('Target (%s) not an asteroid' % targetname)
                 n = None
 
@@ -323,9 +323,9 @@ def curve_of_growth_analysis(filenames, parameters,
         
     ##### display results
     if display:
-        print '\n########################## APERTURE CORRECTION SUMMARY:\n###'
-        print '### best-fit aperture radius %5.2f (px)' % (optimum_aprad)
-        print '###\n######################################################\n'
+        print('\n########################## APERTURE CORRECTION SUMMARY:\n###')
+        print('### best-fit aperture radius %5.2f (px)' % (optimum_aprad))
+        print('###\n######################################################\n')
 
     logging.info('==> best-fit aperture radius: %3.1f (px)'  % (optimum_aprad))
 
@@ -377,9 +377,9 @@ def photometry(filenames, sex_snr, source_minarea, aprad,
     logging.info('extract sources using optimum aperture from %d images' % \
                  len(filenames))
     if display:
-        print ('* extract sources from %d images using aperture ' \
+        print(('* extract sources from %d images using aperture ' \
                + 'radius %4.2fpx') % \
-            (len(filenames), aprad)
+            (len(filenames), aprad))
 
     pp_extract.extract_multiframe(filenames, photpar)
 
@@ -434,8 +434,8 @@ if __name__ == '__main__':
     try:
         telescope = hdu[0].header['TEL_KEYW']
     except KeyError:
-        print 'ERROR: cannot find telescope keyword in image header;'+\
-            'has this image run through wcs_register?'
+        print('ERROR: cannot find telescope keyword in image header;'+\
+            'has this image run through wcs_register?')
         sys.exit(0)
     obsparam = _pp_conf.telescope_parameters[telescope]
 

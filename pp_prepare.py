@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ PP_PREPARE - prepare fits images for photometry pipeline
     v1.0: 2016-02-27, michael.mommert@nau.edu
@@ -98,7 +98,7 @@ def prepare(filenames, obsparam, header_update, flipx=False,
             except:
                 pass
 
-            inp = raw_input('%s? > ' % description)
+            inp = input('%s? > ' % description)
 
             if keyword is 'secpix':
                 obsparam[keyword] = (float(inp), float(inp))
@@ -140,7 +140,7 @@ def prepare(filenames, obsparam, header_update, flipx=False,
     for filename in filenames:
 
         if display:
-            print 'preparing', filename
+            print('preparing', filename)
 
         # open image file
         hdulist = fits.open(filename, mode='update', verify='silentfix', 
@@ -476,7 +476,7 @@ if __name__ == '__main__':
         try:
             telescope = _pp_conf.instrument_identifiers[instruments[0]]
         except:
-            print 'cannot identify telescope/instrument; use GENERIC telescope'
+            print('cannot identify telescope/instrument; use GENERIC telescope')
             logging.warning('cannot identify telescope/instrument; ' + 
                             'use GENERIC telescope')
             telescope = 'GENERIC'

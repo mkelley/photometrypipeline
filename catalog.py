@@ -27,7 +27,7 @@ import os
 import sys 
 import numpy
 import logging
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import sqlite3 as sql
 from scipy import spatial
@@ -70,7 +70,7 @@ class catalog:
         """ 
         return: array of all available fields 
         """
-        return self.data.names + self.fieldnames.keys()
+        return self.data.names + list(self.fieldnames.keys())
 
 
     def __getitem__(self, ident):
@@ -208,14 +208,14 @@ class catalog:
                 url += "&-sort=-" + _pp_conf.allcatalogs_mag[self.catalogname]
             else:
                 logging.warning('not sure how to sort catalog data (%s)' % sort)
-                print 'not sure how to sort catalog data (%s)' % sort
+                print('not sure how to sort catalog data (%s)' % sort)
 
         logging.info('accessing %s on vizier: %s' % (self.catalogname, url))
 
         #print url
         
         ### call server
-        call = urllib2.urlopen(url)
+        call = urllib.request.urlopen(url)
 
         if not display_progress:
             download = call.read()
@@ -236,14 +236,13 @@ class catalog:
                 file_size_bytes += len(buf)
                 new_status = 'downloaded %d kB' % (file_size_bytes/1024.)
                 # remove last status and display new one
-                print ''.join(['\r' for i in range(len(last_status))]) + \
-                    new_status,
-                sys.stdout.flush()
+                print(''.join(['\r' for i in range(len(last_status))]) +
+                      new_status, end='', flush=True)
 
                 last_status = new_status
                 download += buf
 
-            print ' - done.'
+            print(' - done.')
 
         # write FITS table to file
         fitsfile = open(self.catalogname+'.fits', 'wb')
@@ -257,13 +256,13 @@ class catalog:
             self.data = hdulist[1].data
         except IOError:
             if self.display:
-                print self.catalogname, 'data not successfully downloaded'
+                print(self.catalogname, 'data not successfully downloaded')
             logging.error('%s data not successfully downloaded' % 
                           self.catalogname)
             return 0
         except IndexError:
             if self.display:
-                print 'no data available from %s' % self.catalogname
+                print('no data available from %s' % self.catalogname)
             logging.error('no data available from %s' % self.catalogname)
             return 0
 
@@ -347,8 +346,8 @@ class catalog:
         hdulist  = fits.open(filename, ignore_missing_end=True)
 
         if len(hdulist) < 3:
-            print ('ERROR: %s seems to be empty; check LOG file if ' + 
-                   'Source Extractor ran properly') % filename
+            print(('ERROR: %s seems to be empty; check LOG file if ' + 
+                   'Source Extractor ran properly') % filename)
             logging.error(('ERROR: %s seems to be empty; check LOG file if ' + 
                    'Source Extractor ran properly') % filename)
             return None
@@ -401,7 +400,7 @@ class catalog:
             ctr = ((max(self[wcs_keys[0]])+min(self[wcs_keys[0]])/2.), 
                    (max(self[wcs_keys[1]])+min(self[wcs_keys[1]])/2.))
         except KeyError:
-            print 'ERROR: ldac_tools.write_file cannot find keys', wcs_keys
+            print('ERROR: ldac_tools.write_file cannot find keys', wcs_keys)
             return None
 
         ### create primary header (empty)
@@ -608,7 +607,7 @@ class catalog:
             db = db_conn.cursor()
         except:
             if self.display:
-                print 'ERROR: could not find database', filename
+                print('ERROR: could not find database', filename)
                 logging.error('ERROR: could not find database', filename)
             return []
 
@@ -1026,8 +1025,8 @@ class catalog:
 
         else:
             if self.display:
-                print 'ERROR: no transformation from %s to %s available' % \
-                    (self.catalogname, targetfilter)
+                print('ERROR: no transformation from %s to %s available' % \
+                    (self.catalogname, targetfilter))
             return 0
         
 
@@ -1057,25 +1056,23 @@ class catalog:
                 if item in self.fieldnames:
                     lst[idx] = catalog.fieldnames[item]
 
-        this_tree = spatial.KDTree(zip(self[match_keys_this_catalog[0]],
-                                   self[match_keys_this_catalog[1]]))
+        this_tree = spatial.KDTree(list(zip(self[match_keys_this_catalog[0]],
+                                   self[match_keys_this_catalog[1]])))
 
         # kd-tree matching
         if tolerance is not None:
             other_tree = spatial.KDTree(\
-                            zip(catalog[match_keys_other_catalog[0]],
-                                catalog[match_keys_other_catalog[1]]))
+                            list(zip(catalog[match_keys_other_catalog[0]],
+                                catalog[match_keys_other_catalog[1]])))
             match = this_tree.query_ball_tree(other_tree, tolerance)
 
-            indices_this_catalog  = filter(lambda x: len(match[x]) == 1, 
-                                           range(len(match)))
-            indices_other_catalog = map(lambda x: x[0], 
-                                        filter((lambda x: len(x)==1), match))
+            indices_this_catalog  = [x for x in range(len(match)) if len(match[x]) == 1]
+            indices_other_catalog = [x[0] for x in filter((lambda x: len(x)==1), match)]
             
         else:
             # will find the closest match for each target in this catalog
-            other_cat = zip(catalog[match_keys_other_catalog[0]],
-                            catalog[match_keys_other_catalog[1]])
+            other_cat = list(zip(catalog[match_keys_other_catalog[0]],
+                                 catalog[match_keys_other_catalog[1]]))
 
             match = this_tree.query(other_cat) 
 
@@ -1085,8 +1082,9 @@ class catalog:
                 other_cat_indices = numpy.where(match[1]==target_idx)[0]
                 if len(other_cat_indices) > 0:
                     # find closest match
-                    min_idx = other_cat_indices[numpy.argmin(map(lambda
-                                        i:match[0][i], other_cat_indices))]
+                    min_idx = other_cat_indices[
+                        numpy.argmin([match[0][i] for i in other_cat_indices])
+                    ]
 
                     indices_this_catalog.append(target_idx)
                     indices_other_catalog.append(min_idx)
@@ -1095,7 +1093,7 @@ class catalog:
         ### match outputs based on indices provided and require
         ### extract_fields to be filled
         assert len(indices_this_catalog) == len(indices_other_catalog)
-        indices = zip(indices_this_catalog, indices_other_catalog)
+        indices = list(zip(indices_this_catalog, indices_other_catalog))
         # check if element is either not nan or not a float
         check_not_nan = lambda x: not numpy.isnan(x) if \
                                   (type(x) is numpy.float_) else True

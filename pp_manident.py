@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ MANIDENT - manual target identification tool for the Photometry Pipeline
 
@@ -11,7 +11,7 @@
 import os, sys
 import numpy
 import warnings
-from Tkinter import *
+from tkinter import *
 from PIL import Image
 from PIL import ImageTk
 from PIL import ImageDraw
@@ -39,12 +39,11 @@ class Clicker:
         self.mjd    = []
 
         ### load image data
-        print 'please wait, loading images...',
-        sys.stdout.flush()
+        print('please wait, loading images...', end='', flush=True)
 
         self.read_all_fits(self.files)
 
-        print 'done!'
+        print('done!')
 
         # create title bar
         self.title = Label(text='%s (%d/%d)' % 
@@ -131,10 +130,9 @@ class Clicker:
         """ read in all image data, scale images """
         for idx, filename in enumerate(filenames):
             if idx > 0:
-                print '\b\b\b\b%3d' % (idx+1),
+                print('\b\b\b\b%3d' % (idx+1), end='', flush=True)
             else:
-                print '%3d' % (idx+1),
-            sys.stdout.flush()
+                print('%3d' % (idx+1), end='', flush=True)
 
             ## read image data
             hdulist = fits.open(filename, ignore_missing_end=True)
@@ -185,7 +183,7 @@ class Clicker:
             self.index = len(self.files) - 1
         filename = self.files[self.index]
         if not os.path.exists(filename):
-            print "Unable to find %s" % filename
+            print("Unable to find %s" % filename)
             self.top.quit()
         self.evar.set(self.index+1)
                     
@@ -229,7 +227,7 @@ class Clicker:
             self.canvas.delete(circ)
         x = self.ldac[self.index]['XWIN_IMAGE']
         y = self.ldac[self.index]['YWIN_IMAGE'] 
-        indices = range(len(x))
+        indices = list(range(len(x)))
         if self.target_index[self.index] is not None:
             indices.pop(self.target_index[self.index])
         if interp_idx is not None:            
@@ -316,7 +314,7 @@ if __name__ == "__main__":
                 app.ldac[image_idx][interp_idx]['YWIN_WORLD'],
                 app.mjd[image_idx]))
 
-    print image_idx+1, 'target positions written to file positions.dat'
+    print(image_idx+1, 'target positions written to file positions.dat')
 
     outf.close()
 

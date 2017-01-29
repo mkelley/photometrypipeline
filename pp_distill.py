@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ PP_DISTILL - distill calibrated image databases into one database
                  of select moving or fixed sources
@@ -56,8 +56,8 @@ def manual_positions(posfile, catalogs, display=True):
     option)"""
 
     if display:
-        print '# target positions as a function of time manually provided... ',
-        sys.stdout.flush()
+        print('# target positions as a function of time manually provided... ',
+              end='', flush=True)
     logging.info('target positions as a function of time manually provided')
 
     positions = numpy.genfromtxt(posfile, dtype=[('filename', 'S50'), 
@@ -68,8 +68,8 @@ def manual_positions(posfile, catalogs, display=True):
     try:
         assert len(positions) == len(catalogs)
     except AssertionError:
-        print (posfile + ' is not complete; has to provide a position ' +
-               'for each frame')
+        print((posfile + ' is not complete; has to provide a position ' +
+               'for each frame'))
         logging.error(posfile+' is not complete; has to provide position ' +
                       'for each frame')
         return []
@@ -83,7 +83,7 @@ def manual_positions(posfile, catalogs, display=True):
                         'dec.deg'    :  positions[cat_idx]['dec']})
         
     if display:
-        print len(objects)/len(catalogs), 'object(s) found'
+        print(len(objects)/len(catalogs), 'object(s) found')
 
     return objects
 
@@ -92,8 +92,7 @@ def pick_controlstar(catalogs, display=True):
     """match the first and the last catalog and pick a bright star"""
 
     if display:
-        print '# pick control star... ',
-        sys.stdout.flush()
+        print('# pick control star... ', end='', flush=True)
     logging.info('pick control star')
 
     match = catalogs[0].match_with(catalogs[-1],
@@ -115,11 +114,11 @@ def pick_controlstar(catalogs, display=True):
                             'ra.deg'     :  match[1][0][ctlstar_idx],
                             'dec.deg'    :  match[1][1][ctlstar_idx]})
     else:
-        print '  no common control star found in first and last frame'
+        print('  no common control star found in first and last frame')
         logging.info('no common control star found in first and last frame')
 
     if display:
-        print 'done!'
+        print('done!')
 
     return objects
 
@@ -133,7 +132,7 @@ def moving_primary_target(catalogs, man_targetname, offset, is_asteroid=None,
     """
        
     if display:
-        print '# check JPL Horizons for primary target... '
+        print('# check JPL Horizons for primary target... ')
         sys.stdout.flush()
     logging.info('check JPL Horizons for primary target')
 
@@ -154,11 +153,11 @@ def moving_primary_target(catalogs, man_targetname, offset, is_asteroid=None,
                 n = eph.get_ephemerides(obsparam['observatory_code'])
             except ValueError:
                 if display and smallbody is True:
-                    print "'%s' is not an asteroid" % targetname
+                    print("'%s' is not an asteroid" % targetname)
                     logging.warning("'%s' is not an asteroid" % 
                                     targetname)
                 if display and smallbody is False:
-                    print "'%s' is not a Solar System object" % targetname
+                    print("'%s' is not a Solar System object" % targetname)
                     logging.warning("'%s' is not a Solar System object" % 
                                     targetname)
                 pass
@@ -203,7 +202,7 @@ def moving_primary_target(catalogs, man_targetname, offset, is_asteroid=None,
                             'Name (%s) correct?' % cat.obj.replace('_', ' '))
             logging.warning('HORIZONS call: %s' % eph.url)
             if display and not message_shown:
-                print ('  no Horizons data for %s '% cat.obj.replace('_', ' '))
+                print(('  no Horizons data for %s '% cat.obj.replace('_', ' ')))
                 message_shown = True
 
         else:
@@ -216,7 +215,7 @@ def moving_primary_target(catalogs, man_targetname, offset, is_asteroid=None,
                          cat.obj.replace('_', ' '))
             logging.info('HORIZONS call: %s' % eph.url)
             if display and not message_shown:
-                print cat.obj.replace('_', ' '), "identified"
+                print(cat.obj.replace('_', ' '), "identified")
                 message_shown = True
 
     return objects
@@ -226,8 +225,7 @@ def fixed_targets(fixed_targets_file, catalogs, display=True):
     """add fixed target positions to object catalog"""
 
     if display:
-        print '# read fixed target file... ',
-        sys.stdout.flush()
+        print('# read fixed target file... ', end='', flush=True)
     logging.info('read fixed target file')
     
 
@@ -246,7 +244,7 @@ def fixed_targets(fixed_targets_file, catalogs, display=True):
                             'dec.deg'   : obj['dec']})
 
     if display:
-        print len(objects)/len(catalogs), 'targets read'
+        print(len(objects)/len(catalogs), 'targets read')
 
     return objects
 
@@ -265,13 +263,12 @@ def serendipitous_variablestars(catalogs, display=True):
     if _pp_conf.vsx_database_file is None or \
        not os.path.exists(_pp_conf.vsx_database_file):
         if display:
-            print '# cannot find vsx.dat file - variable star search aborted'
+            print('# cannot find vsx.dat file - variable star search aborted')
         logging.info('cannot find vsx.dat file - variable star search aborted')
         return []
 
     if display:
-        print '# match frames with variable star database... ',
-        sys.stdout.flush()
+        print('# match frames with variable star database... ', end='', flush=True)
     logging.info('match frames with variable star database')
  
 
@@ -299,7 +296,7 @@ def serendipitous_variablestars(catalogs, display=True):
                             'dec.deg'   : star[2]})
 
     if display:
-        print len(objects)/len(catalogs), 'variable stars found'
+        print(len(objects)/len(catalogs), 'variable stars found')
 
     return objects
 
@@ -333,11 +330,11 @@ def distill(catalogs, man_targetname, offset, fixed_targets_file, posfile,
                 cat.read_database(filename)
             except IOError:
                 logging.error('Cannot find database', filename)
-                print 'Cannot find database', filename
+                print('Cannot find database', filename)
                 continue
             except sqlite3.OperationalError:
                 logging.error('File %s is not a database file' % filename)
-                print 'File %s is not a database file' % filename
+                print('File %s is not a database file' % filename)
                 continue
             catalogs.append(cat)
 
@@ -347,7 +344,7 @@ def distill(catalogs, man_targetname, offset, fixed_targets_file, posfile,
     objects = [] # one dictionary for each target
 
     if display:
-        print '#------ Identify Targets'
+        print('#------ Identify Targets')
 
     ### check for positions file
     if posfile is not None:
@@ -374,11 +371,11 @@ def distill(catalogs, man_targetname, offset, fixed_targets_file, posfile,
         objects += serendipitous_variablestars(catalogs, display=display)
 
     if display:
-        print '#-----------------------'
+        print('#-----------------------')
 
     if display:
-        print len(objects)/len(catalogs), \
-            'potential target(s) per frame identified.'
+        print(len(objects)/len(catalogs), \
+            'potential target(s) per frame identified.')
         # print len(objects)/len(catalogs), \
         #     'potential target(s) per frame identified:', \
         #     ", ".join(set([obj['ident'] for obj in objects]))
@@ -396,8 +393,7 @@ def distill(catalogs, man_targetname, offset, fixed_targets_file, posfile,
     # sort objects by catalog idx
     for cat_idx, cat in enumerate(catalogs):
 
-        objects_thiscat = filter(lambda obj:obj['cat_idx']==cat_idx,
-                                 objects)
+        objects_thiscat = [obj for obj in objects if obj['cat_idx'] == cat_idx]
 
         # create a new catalog
         target_cat = catalog('targetlist:_'+cat.catalogname)
@@ -468,7 +464,7 @@ def distill(catalogs, man_targetname, offset, fixed_targets_file, posfile,
         output[target] = []
 
         if display:
-            print 'write photometry results for %s' % target
+            print('write photometry results for %s' % target)
         outf = open('photometry_%s.dat' % target.replace(' ', '_'), 'w')
         outf.writelines('#                          filename     julian_date' +
                         'ast_mag ast_sig        ast_ra       ast_dec    ' +
@@ -533,7 +529,7 @@ def distill(catalogs, man_targetname, offset, fixed_targets_file, posfile,
     ##### create diagnostics 
     if diagnostics:
         if display:
-            print 'extracting thumbnail images'
+            print('extracting thumbnail images')
         diag.add_results(output)
 
 
