@@ -321,7 +321,7 @@ def prepare(filenames, obsparam, header_update, flipx=False,
         # read out ra and dec from header
         if obsparam['radec_separator'] == 'XXX':
 
-            print header[11:15]
+            print(header[11:15])
 
             ra_deg  = float(header[obsparam['ra']])
             dec_deg = float(header[obsparam['dec']])
