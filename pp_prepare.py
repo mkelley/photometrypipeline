@@ -286,40 +286,43 @@ def prepare(filenames, obsparam, header_update, flipx=False,
                                        'PP: old value for %s' % key)
             header[key] = (value, 'PP: manually updated')
 
-        # check if RA, Dec, airmass headers are available; else: query horizons
-        # to get approximate information
-        if (obsparam['ra'] not in header or 
-            obsparam['dec'] not in header or 
-            obsparam['airmass'] not in header):
+        # # check if RA, Dec, airmass headers are available; else: query horizons
+        # # to get approximate information
+        # if (obsparam['ra'] not in header or 
+        #     obsparam['dec'] not in header or 
+        #     obsparam['airmass'] not in header):
 
-            logging.info('Either RA, Dec, or airmass missing from image ' +
-                         'header; pull approximate information for Horizons') 
+        #     logging.info('Either RA, Dec, or airmass missing from image ' +
+        #                  'header; pull approximate information for Horizons') 
 
-            # obtain approximate ra and dec (and airmass) from JPL Horizons
-            eph = callhorizons.query(header[obsparam['object']].
-                                     replace('_', ' '))
-            eph.set_discreteepochs(header['MIDTIMJD'])
-            try:
-                n = eph.get_ephemerides(obsparam['observatory_code'])
-            except ValueError:
-                logging.warning('Target (%s) is not an asteroid' % 
-                                header[obsparam['object']])
-                n = None
+        #     # obtain approximate ra and dec (and airmass) from JPL Horizons
+        #     eph = callhorizons.query(header[obsparam['object']].
+        #                              replace('_', ' '))
+        #     eph.set_discreteepochs(header['MIDTIMJD'])
+        #     try:
+        #         n = eph.get_ephemerides(obsparam['observatory_code'])
+        #     except ValueError:
+        #         logging.warning('Target (%s) is not an asteroid' % 
+        #                         header[obsparam['object']])
+        #         n = None
 
-            if n is None:
-                raise KeyError(('%s is not an asteroid known to JPL Horizons' %
-                                header[obsparam['object']]))
+        #     if n is None:
+        #         raise KeyError(('%s is not an asteroid known to JPL Horizons' %
+        #                         header[obsparam['object']]))
 
-            header[obsparam['ra']] = (eph['RA'][0], 'PP: queried from Horizons')
-            header[obsparam['dec']] = (eph['DEC'][0], 
-                                       'PP: queried from Horizons')
-            header[obsparam['airmass']] = (eph['airmass'][0], 
-                                           'PP: queried from Horizons')
+        #     header[obsparam['ra']] = (eph['RA'][0], 'PP: queried from Horizons')
+        #     header[obsparam['dec']] = (eph['DEC'][0], 
+        #                                'PP: queried from Horizons')
+        #     header[obsparam['airmass']] = (eph['airmass'][0], 
+        #                                    'PP: queried from Horizons')
 
         ##### add fake wcs information that is necessary to run SCAMP
 
         # read out ra and dec from header
         if obsparam['radec_separator'] == 'XXX':
+
+            print header[11:15]
+
             ra_deg  = float(header[obsparam['ra']])
             dec_deg = float(header[obsparam['dec']])
         else:

@@ -86,7 +86,7 @@ pp_process_idx = 0
 
 ### potential FITS header keywords for looking up the instrument
 # any unique header keyword works as a potential identifier
-instrument_keys = ['INSTRUME', 'LCAMMOD']
+instrument_keys = ['INSTRUME', 'LCAMMOD', 'HEAD']
 
 
 ### available catalogs
